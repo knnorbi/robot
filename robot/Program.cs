@@ -37,11 +37,20 @@ namespace robot
                 Console.Write("A " + sorsz + ". utasítássorozat ");
                 Console.Write(utasitasSorozatok[sorsz].Egyszerusitheto ? "nem " : "");
                 Console.WriteLine("egyszerűsíthető!");
+
+
+                int[] hely = utasitasSorozatok[sorsz].HovaJut();
+                Console.WriteLine("A origóhoz menni kell x=" + (-1 * hely[0]) + " y=" + (-1*hely[1]) + " lépést.");
+
+                int[] messze = utasitasSorozatok[sorsz].HolVanALegtavolabb();
+                Console.WriteLine("A legmesszebb x=" + messze[0] + " y=" + messze[1] + " helyen van, " + messze[2] + " távolságra.");
+
             }
             catch (Exception)
             {
                 Console.WriteLine("Nincs ilyen utasítássorozat!");
             }
+
 
 
             Console.ReadKey();

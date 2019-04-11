@@ -50,5 +50,57 @@ namespace robot
             }
         }
 
+        public int[] HovaJut()
+        {
+            int[] hely = new int[2];
+            for (int i = 0; i < utasitasok.Count; i++)
+            {
+                switch (utasitasok[i])
+                {
+                    case Irany.Eszak:
+                        hely[1]++; break;
+                    case Irany.Kelet:
+                        hely[0]++; break;
+                    case Irany.Nyugat:
+                        hely[0]--; break;
+                    case Irany.Del:
+                        hely[1]--; break;
+                }
+            }
+            return hely;
+        }
+
+        static double MennyireMessze(int[] hely)
+        {
+            return Math.Sqrt(Math.Pow(hely[0], 2) + Math.Pow(hely[1], 2));
+        }
+
+        public int[] HolVanALegtavolabb()
+        {
+            int[] legmesszebb = new int[] { 0, 0 };
+            int legmeszebbLepesszam = 0;
+            int[] aktualisHely = new int[] { 0, 0 };
+            for (int i = 0; i < utasitasok.Count; i++)
+            {
+                switch (utasitasok[i])
+                {
+                    case Irany.Eszak:
+                        aktualisHely[1]++; break;
+                    case Irany.Kelet:
+                        aktualisHely[0]++; break;
+                    case Irany.Nyugat:
+                        aktualisHely[0]--; break;
+                    case Irany.Del:
+                        aktualisHely[1]--; break;
+                }
+                if(MennyireMessze(aktualisHely) > MennyireMessze(legmesszebb))
+                {
+                    legmesszebb = aktualisHely;
+                    legmeszebbLepesszam = i + 1;
+                }
+            }
+            return new int[] { legmesszebb[0], legmesszebb[1], legmeszebbLepesszam };
+        }
+
     }
 }
