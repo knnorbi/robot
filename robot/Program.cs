@@ -13,7 +13,7 @@ namespace robot
         {
             List<UtasitasSorozat> utasitasSorozatok = new List<UtasitasSorozat>();
 
-            string[] sorok = File.ReadAllLines(@"c:\tmp\19-04-10_robotosdi\program.txt");
+            string[] sorok = File.ReadAllLines(@"..\..\..\program.txt");
 
             for (int i = 1; i < sorok.Length; i++)
             {
