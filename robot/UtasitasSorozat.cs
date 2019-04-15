@@ -102,5 +102,59 @@ namespace robot
             return new int[] { legmesszebb[0], legmesszebb[1], legmeszebbLepesszam };
         }
 
+        public int Energia
+        {
+            get
+            {
+                int energia = 1;
+                Irany irany = utasitasok[0];
+                for (int i = 0; i < utasitasok.Count; i++)
+                {
+                    energia++;
+                    if(utasitasok[i] != irany)
+                    {
+                        energia += 2;
+                    }
+                    irany = utasitasok[i];
+                }
+                return energia;
+            }
+        }
+
+        public string Tomorit()
+        {
+            string tomoritett = "";
+
+            for (int i = 0; i < utasitasok.Count; i++)
+            {
+                Irany aktualis = utasitasok[i];
+                int j = i + 1;
+                while(j < utasitasok.Count && aktualis == utasitasok[j])
+                {
+                    j++;
+                }
+                if(j != i + 1)
+                {
+                    tomoritett += j - i;
+                    i = j;
+                }
+                switch (aktualis)
+                {
+                    case Irany.Eszak:
+                        tomoritett += 'E'; break;
+                    case Irany.Kelet:
+                        tomoritett += 'K'; break;
+                    case Irany.Nyugat:
+                        tomoritett += 'N'; break;
+                    case Irany.Del:
+                        tomoritett += 'D'; break;
+                    default:
+                        break;
+                }
+            }
+
+            return tomoritett;
+        }
+
     }
 }

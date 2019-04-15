@@ -9,6 +9,16 @@ namespace robot
 {
     class Program
     {
+        static void TomoritettUtasitasokFajlba(string path, List<UtasitasSorozat> lista)
+        {
+            StreamWriter streamWriter = new StreamWriter(path);
+            foreach (UtasitasSorozat us in lista)
+            {
+                streamWriter.WriteLine(us.Tomorit());
+            }
+            streamWriter.Close();
+        }
+
         static void Main(string[] args)
         {
             List<UtasitasSorozat> utasitasSorozatok = new List<UtasitasSorozat>();
@@ -44,14 +54,29 @@ namespace robot
 
                 int[] messze = utasitasSorozatok[sorsz].HolVanALegtavolabb();
                 Console.WriteLine("A legmesszebb x=" + messze[0] + " y=" + messze[1] + " helyen van, " + messze[2] + " távolságra.");
-
             }
             catch (Exception)
             {
                 Console.WriteLine("Nincs ilyen utasítássorozat!");
             }
 
+            for (int i = 0; i < utasitasSorozatok.Count; i++)
+            {
+                if (utasitasSorozatok[i].Energia <= 100)
+                {
+                    Console.WriteLine("A {0}. utasítássorozathoz elég a kis akkumulátor.", i);
+                }
+                else if (utasitasSorozatok[i].Energia <= 1000)
+                {
+                    Console.WriteLine("A {0}. utasítássorozathoz a nagy akkumulátor kell.", i);
+                }
+                else
+                {
+                    Console.WriteLine("A {0}. utasítássorozathoz nem elég a nagy akkumulátor sem.", i);
+                }
+            }
 
+            TomoritettUtasitasokFajlba("ujprog.txt", utasitasSorozatok);
 
             Console.ReadKey();
         }
