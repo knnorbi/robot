@@ -6,155 +6,254 @@ using System.Threading.Tasks;
 
 namespace robot
 {
-    public class UtasitasSorozat
+    /// <summary>
+    /// Egy utasítássorozatot tároló publikus osztály.
+    /// </summary>
+    public class Utasitassorozat
     {
+        /// <summary>
+        /// Privát lista, mely az utasításokat tárolja.
+        /// </summary>
         List<Irany> utasitasok;
 
-        public UtasitasSorozat()
+        /// <summary>
+        /// Létrehoz egy üres utasítássorozatot.
+        /// </summary>
+        public Utasitassorozat()
         {
             utasitasok = new List<Irany>();
         }
 
-        public UtasitasSorozat(string utasitasokString)
+        /// <summary>
+        /// Beolvas egy utasítássorzatot egy string-ből és eltárolja a listában.
+        /// </summary>
+        /// <param name="utasitasokString">Utasítássorozat string.</param>
+        public Utasitassorozat(string utasitasokString) : this()
         {
-            utasitasok = new List<Irany>();
+            // Végig megyünk a string minden karakterén.
             for (int i = 0; i < utasitasokString.Length; i++)
             {
+                // Megvizsgáljuk, hogy az adott karakter E, D, K vagy N és eltároljuk a megfelelő
+                // enumeráció értéket a listában.
                 switch (utasitasokString[i])
                 {
-                    case 'E': utasitasok.Add(Irany.Eszak); break;
-                    case 'D': utasitasok.Add(Irany.Del); break;
-                    case 'K': utasitasok.Add(Irany.Kelet); break;
-                    case 'N': utasitasok.Add(Irany.Nyugat); break;
+                    case 'E': utasitasok.Add(Irany.E); break;
+                    case 'D': utasitasok.Add(Irany.D); break;
+                    case 'K': utasitasok.Add(Irany.K); break;
+                    case 'N': utasitasok.Add(Irany.N); break;
                 }
             }
         }
 
+        /// <summary>
+        /// Igazat ad,  ha az utasitassorozat egyszerűsíthető.
+        /// </summary>
         public bool Egyszerusitheto
         {
             get
             {
+                // Végigmegyünk az utasításokon az elejétől az utolsó előttiig.
                 for (int i = 0; i < utasitasok.Count - 1; i++)
                 {
-                    if (utasitasok[i] == Irany.Del && utasitasok[i + 1] == Irany.Eszak)
+                    // Ha találunk egy olyan utasítást, aminek a rákövetkező elem az
+                    // ellentkezője, akkor visszaadunk igazat.
+                    if (utasitasok[i] == Irany.D && utasitasok[i + 1] == Irany.E)
                         return true;
-                    if (utasitasok[i] == Irany.Kelet && utasitasok[i + 1] == Irany.Nyugat)
+                    if (utasitasok[i] == Irany.K && utasitasok[i + 1] == Irany.N)
                         return true;
-                    if (utasitasok[i] == Irany.Nyugat && utasitasok[i + 1] == Irany.Kelet)
+                    if (utasitasok[i] == Irany.N && utasitasok[i + 1] == Irany.K)
                         return true;
-                    if (utasitasok[i] == Irany.Eszak && utasitasok[i + 1] == Irany.Del)
+                    if (utasitasok[i] == Irany.E && utasitasok[i + 1] == Irany.D)
                         return true;
                 }
 
+                // Ha nem találtunk egyet sem, akkor visszaadunk hamisat.
                 return false;
             }
         }
 
-        public int[] HovaJut()
+        /// <summary>
+        /// Visszaadja, hogy az utasitassorozat végén hova jut a robot.
+        /// </summary>
+        /// <returns>A végső koordináta.</returns>
+        public Koordinata HovaJut()
         {
-            int[] hely = new int[2];
+            // Létrehozunk egy új Koordinata az origóban.
+            Koordinata hely = new Koordinata(0, 0);
+
+            // Végigmegyünk az összes utasításon.
             for (int i = 0; i < utasitasok.Count; i++)
             {
-                switch (utasitasok[i])
-                {
-                    case Irany.Eszak:
-                        hely[1]++; break;
-                    case Irany.Kelet:
-                        hely[0]++; break;
-                    case Irany.Nyugat:
-                        hely[0]--; break;
-                    case Irany.Del:
-                        hely[1]--; break;
-                }
+                // Minden utasításnál a megfelelő irányba mozgatjuk a Koordinátát.
+                hely.Mozgat(utasitasok[i]);
             }
+            // Visszaadjuk a végő helyet.
             return hely;
         }
 
-        static double MennyireMessze(int[] hely)
+        /// <summary>
+        /// Visszadja, hogy a robot hol volt a legtávolabb az origótól, és a
+        /// referenciaként átadott paraméterben, hogy hanyadik lépés után.
+        /// </summary>
+        /// <param name="lepesekSzama">Hány lépés után volt a legtávolabb.</param>
+        /// <returns>A legtávolabbi pont koordinátája.</returns>
+        public Koordinata HolVanALegtavolabb(ref int lepesekSzama)
         {
-            return Math.Sqrt(Math.Pow(hely[0], 2) + Math.Pow(hely[1], 2));
-        }
+            // Feltétlezzünk, hogy a legtávolabbi pont az origó.
+            Koordinata legmesszebb = new Koordinata(0, 0); ;
+            // Eltároljuk az akutális helyet
+            Koordinata akutalisHely = new Koordinata(0, 0);
 
-        public int[] HolVanALegtavolabb()
-        {
-            int[] legmesszebb = new int[] { 0, 0 };
-            int legmeszebbLepesszam = 0;
-            int[] aktualisHely = new int[] { 0, 0 };
+            // Végigmegyünk az összes lépésen.
             for (int i = 0; i < utasitasok.Count; i++)
             {
-                switch (utasitasok[i])
+                // Minden utasításnál a megfelelő irányba mozgatjuk a Koordinátát.
+                akutalisHely.Mozgat(utasitasok[i]);
+
+                // Megnézzük, hogy messzebb van-e, mint az idáigi legtávolabbi pont.
+                if(akutalisHely.MennyireMesszeAzOrigotol() > legmesszebb.MennyireMesszeAzOrigotol())
                 {
-                    case Irany.Eszak:
-                        aktualisHely[1]++; break;
-                    case Irany.Kelet:
-                        aktualisHely[0]++; break;
-                    case Irany.Nyugat:
-                        aktualisHely[0]--; break;
-                    case Irany.Del:
-                        aktualisHely[1]--; break;
-                }
-                if(MennyireMessze(aktualisHely) > MennyireMessze(legmesszebb))
-                {
-                    legmesszebb = aktualisHely;
-                    legmeszebbLepesszam = i + 1;
+                    // Ha igen, akkor eltároljuk, hogy ez az idáigi legmeszebbi hely.
+                    legmesszebb = new Koordinata(akutalisHely);
+                    lepesekSzama = i + 1;
                 }
             }
-            return new int[] { legmesszebb[0], legmesszebb[1], legmeszebbLepesszam };
+
+            return legmesszebb;
         }
 
+        /// <summary>
+        /// Publikus tulajdonság, amely megadja, hogy mennyi energiába tellik végrehajtani
+        /// az utasítássorozatot.
+        /// </summary>
         public int Energia
         {
             get
             {
+                // Kezdeti enegia, mert az első lépés 2 energiába kerül.
                 int energia = 1;
+                // Előző irány, kezdetben az első.
                 Irany irany = utasitasok[0];
+
+                // Végigmegyünk az utasitasokon.
                 for (int i = 0; i < utasitasok.Count; i++)
                 {
+                    // Minden lépés egy energiába kerül.
                     energia++;
-                    if(utasitasok[i] != irany)
+                    // Ha az aktuális utasítás nem egyezik az előző iránnyal, akkor 
+                    // plusz kettő energia.
+                    if (utasitasok[i] != irany)
                     {
                         energia += 2;
                     }
+                    // Firssítjük az irányt.
                     irany = utasitasok[i];
                 }
                 return energia;
             }
         }
 
+        /// <summary>
+        /// Betömoríti az utasítássorozatot.
+        /// </summary>
+        /// <returns>Tömorített utasítássorozat.</returns>
         public string Tomorit()
         {
+            // Kezdetben a tömörített utasítássorozat üres.
             string tomoritett = "";
 
+            // Végigmegyünk az utasításokon.
             for (int i = 0; i < utasitasok.Count; i++)
             {
+                // Eltráoljuk az akutális irányt
                 Irany aktualis = utasitasok[i];
+
+                // j index, ami az i utáni elemre mutat.
                 int j = i + 1;
+                // Cikluas amíg a j nem indexel túl és a j-edik elem megegyezik az i-edikkel.
                 while(j < utasitasok.Count && aktualis == utasitasok[j])
                 {
+                    // Növeljük a j értékét.
                     j++;
                 }
+
+                // Ha a j értéke nem egyezik meg az i+1-gyek, akkor találunk még ugyanolyan
+                // utasítást.
                 if(j != i + 1)
                 {
+                    // Beleírjuk, hogy mennyit.
                     tomoritett += j - i;
+                    // i értékét j-re állítjuk, hogy a j+1-edik elemtől folytatódjon.
                     i = j;
                 }
-                switch (aktualis)
-                {
-                    case Irany.Eszak:
-                        tomoritett += 'E'; break;
-                    case Irany.Kelet:
-                        tomoritett += 'K'; break;
-                    case Irany.Nyugat:
-                        tomoritett += 'N'; break;
-                    case Irany.Del:
-                        tomoritett += 'D'; break;
-                    default:
-                        break;
-                }
+                // Beleírjuk az irány betűjét.
+                tomoritett += aktualis.ToString();
             }
 
             return tomoritett;
         }
 
+        /// <summary>
+        /// Statikus privát segédfüggvény, hogy egy karakter szám e.
+        /// </summary>
+        /// <param name="c">Karakter.</param>
+        /// <returns>Szám-e.</returns>
+        public static bool SzamE(char c)
+        {
+            if (c >= '0' && c <= '9')
+                return true;
+            return false;
+        }
+
+        /// <summary>
+        /// Statikus metódus, ami kitömöríti az utasítássorozatot.
+        /// </summary>
+        /// <param name="tomoritett">Tömorített utasítássorozat.</param>
+        /// <returns>Kitömörített utasítássorozat.</returns>
+        public static string Kitomorit(string tomoritett)
+        {
+            // A kitömrített string kezdetben üres.
+            string kitomoritve = "";
+
+            // Végimegyünk az összes karakteren.
+            for (int i = 0; i < tomoritett.Length; i++)
+            {
+                // Megnézzünk, hogy szám-e.
+                if(SzamE(tomoritett[i]))
+                {
+                    // Ha igen, akkor megkeressük az összeset.
+
+                    // Eltároljuk az első karakter.
+                    string darabString = tomoritett[i].ToString();
+                    // Index a következő karakterre.
+                    int j = i + 1;
+                    while(j < tomoritett.Length && SzamE(tomoritett[j]))
+                    {
+                        // Amíg a karakter szám hozzáadjuk a stringhez.
+                        darabString += tomoritett[j].ToString();
+                        j++;
+                    }
+
+                    // Átalakítjuk számmá.
+                    int darab = int.Parse(darabString);
+                    // Beleírunk ennyi darab karaktert a kimeneti stringbe.
+                    for (int k = 0; k < darab; k++)
+                    {
+                        // A j index pont a következő karakteren fog állni, ami a betűt mutatja.
+                        kitomoritve += tomoritett[j];
+                    }
+                    // i-t j-re állítjuk, hogy a j+1-gyel folyatódjon a külső ciklus.
+                    i = j;
+                }
+                // Ha nem szám.
+                else
+                {
+                    // Beleírjuk az i-edik karaktert.
+                    kitomoritve += tomoritett[i];
+                }
+            }
+
+            return kitomoritve;
+        }
     }
 }

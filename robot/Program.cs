@@ -9,74 +9,148 @@ namespace robot
 {
     class Program
     {
-        static void TomoritettUtasitasokFajlba(string path, List<UtasitasSorozat> lista)
-        {
-            StreamWriter streamWriter = new StreamWriter(path);
-            foreach (UtasitasSorozat us in lista)
-            {
-                streamWriter.WriteLine(us.Tomorit());
-            }
-            streamWriter.Close();
-        }
+        //static void TomoritettUtasitasokFajlba(string path, List<Utasitassorozat> lista)
+        //{
+        //    StreamWriter streamWriter = new StreamWriter(path);
+        //    foreach (Utasitassorozat us in lista)
+        //    {
+        //        streamWriter.WriteLine(us.Tomorit());
+        //    }
+        //    streamWriter.Close();
+        //}
 
         static void Main(string[] args)
         {
-            List<UtasitasSorozat> utasitasSorozatok = new List<UtasitasSorozat>();
+            #region 1. feladat
+            // Létrehozunk egy listát, amely az utasítássorozatokat tárolja.
+            List<Utasitassorozat> utasitassorozatok = new List<Utasitassorozat>();
 
+            // Beolvassuk egy string tömbe a bemeneti fájl összes sorát.
             string[] sorok = File.ReadAllLines(@"..\..\..\program.txt");
 
+            // Végigmegyünk az összes sorok (kivéve az elsőn), és minden sorból
+            // létrehozunk egy Utasítássorozat osztálypéldánt, melyet hozzáadunk a listához.
             for (int i = 1; i < sorok.Length; i++)
             {
-                utasitasSorozatok.Add(new UtasitasSorozat(sorok[i]));
+                utasitassorozatok.Add(new Utasitassorozat(sorok[i]));
             }
 
-            Console.WriteLine("2. feladat");
-            Console.WriteLine("Kérek egy szamot:");
-            int sorsz = -1;
+            // Ellenőrizzük, hogy volt-e utasítás a fájlban. Ha nem, kilépünk a programból.
+            if(utasitassorozatok.Count == 0)
+            {
+                Console.WriteLine("A bementi fájl nem tartalmaz utasításokat!");
+                Console.ReadKey();
+                return;
+            }
+            #endregion
+
+            #region 2. feladat
+            // Bekérünk a felhasználótól egy utasítássorozat sorszámot.
+            Console.WriteLine("Írj be egy utasítássorozat sorszámot!");
+            string bekert = Console.ReadLine();
+
+            // Megpróbáljuk int-é alakítani.
+            int sorszam = -1;
             try
             {
-                sorsz = int.Parse(Console.ReadLine());
+                sorszam = int.Parse(bekert);
             }
-            catch (Exception)
+            // Ha nem számot írt be.
+            catch (FormatException)
             {
-                Console.WriteLine("Számot!!!!!!!");
+                Console.WriteLine("Csak számot írhatsz be!");
             }
-
-            try
+            // Ha túl nagy számot írt be.
+            catch (OverflowException)
             {
-                Console.Write("A " + sorsz + ". utasítássorozat ");
-                Console.Write(utasitasSorozatok[sorsz].Egyszerusitheto ? "nem " : "");
-                Console.WriteLine("egyszerűsíthető!");
-
-
-                int[] hely = utasitasSorozatok[sorsz].HovaJut();
-                Console.WriteLine("A origóhoz menni kell x=" + (-1 * hely[0]) + " y=" + (-1*hely[1]) + " lépést.");
-
-                int[] messze = utasitasSorozatok[sorsz].HolVanALegtavolabb();
-                Console.WriteLine("A legmesszebb x=" + messze[0] + " y=" + messze[1] + " helyen van, " + messze[2] + " távolságra.");
+                Console.WriteLine("Túl nagy a szám!");
             }
-            catch (Exception)
+            // Végezetül, mindenképp.
+            finally
             {
-                Console.WriteLine("Nincs ilyen utasítássorozat!");
-            }
-
-            for (int i = 0; i < utasitasSorozatok.Count; i++)
-            {
-                if (utasitasSorozatok[i].Energia <= 100)
+                // Ellenőrizzük, hogy létezik-e ez a sorszám.
+                if (sorszam < 0 || sorszam >= utasitassorozatok.Count)
                 {
-                    Console.WriteLine("A {0}. utasítássorozathoz elég a kis akkumulátor.", i);
+                    sorszam = 0;
+                    Console.WriteLine("A kiválasztott sorszám nem létezik. Automatikusan kiválasztok egy létezőt!");
                 }
-                else if (utasitasSorozatok[i].Energia <= 1000)
-                {
-                    Console.WriteLine("A {0}. utasítássorozathoz a nagy akkumulátor kell.", i);
-                }
-                else
-                {
-                    Console.WriteLine("A {0}. utasítássorozathoz nem elég a nagy akkumulátor sem.", i);
-                }
+
+                Console.WriteLine("A kiválasztott sorsám: {0}", sorszam);
+            }
+            #endregion
+
+            #region 2.a feladat
+            Console.WriteLine("--- 2.a feladat ---");
+
+            // Az Utasitassorozat Egyszerusithető tulajdonságát felhasználva kiijuk, hogy
+            // a kiválasztott utasítássorozat egyszerűsíthető-e.
+            Console.WriteLine("A {0}. számú utasítássorozat {1}egyszerűsíthető.", sorszam, utasitassorozatok[sorszam].Egyszerusitheto ? "" : "nem ");
+            #endregion
+
+            #region 2.b feladat
+            Console.WriteLine("--- 2.b feladat ---");
+
+            // Az Utasitassorozat HovaJut metódusát felhasználva kiírjuk, hogy merre kell menni
+            // vissza az origó felé.
+            int ED = (-1) * utasitassorozatok[sorszam].HovaJut().y;
+            int KN = (-1) * utasitassorozatok[sorszam].HovaJut().x;
+
+            Console.WriteLine("{0} lépést kell tenni az ED, {1} lépést a KN tengely mentén.", ED, KN);
+            #endregion
+
+            #region 2.c feladat
+            Console.WriteLine("--- 2.c feladat ---");
+
+            // Az Utasitassorozat HolVanALegtavolabb metódusát felhasználva kiírjuk, hogy
+            // hány lépés után került a legmesszebb a robot, és hogy ehhez hány lépést kellett
+            // megtennie.
+            int lepesszam = 0;
+            Koordinata hely = utasitassorozatok[sorszam].HolVanALegtavolabb(ref lepesszam);
+            double tavolsag = hely.MennyireMesszeAzOrigotol();
+            tavolsag = Math.Round(tavolsag, 3);
+
+            Console.WriteLine("A robot {0} lépés után volt a legmesszebb, {1} távolságra.", lepesszam, tavolsag);
+            #endregion
+
+            #region 3. feladat
+            Console.WriteLine("--- 3. feladat ---");
+
+            // Végigmegyünk az utasításokon és kiírjuk az energiaszükségletüket az 
+            // Energia tulajdonságot felhasználva.
+            for (int i = 0; i < utasitassorozatok.Count; i++)
+            {
+                Console.WriteLine("{0} {1}", i, utasitassorozatok[i].Energia);
+            }
+            #endregion
+
+            #region 4. feladat
+            Console.WriteLine("--- 4. feladat ---");
+
+            // Kiírjuk az utasítássorozatokat tömörítve egy fájlba, az Utasítassorozat
+            // Tomorit medódusát felhasználva.
+
+            // StreamWriter példányosítása
+            StreamWriter streamWriter = new StreamWriter(@"..\..\..\ujprog.txt");
+
+            // Végigmenyünk az összes utasítássorozaton.
+            foreach (Utasitassorozat utasitassorozat in utasitassorozatok)
+            {
+                streamWriter.WriteLine(utasitassorozat.Tomorit());
             }
 
-            TomoritettUtasitasokFajlba("ujprog.txt", utasitasSorozatok);
+            streamWriter.Close();
+            #endregion
+
+            #region 5. feladat
+            Console.WriteLine("--- 5. feladat ---");
+
+            // Bekérünk egy tömörített utasítássorozatot.
+            Console.WriteLine("Írj be egy tömörített utasítássorozatot!");
+            string tomoritett = Console.ReadLine();
+
+            //Kiírjuk kitömorítve az Utasitassorozat osztály statikus Kitomorit metódusa segítségével
+            Console.WriteLine(Utasitassorozat.Kitomorit(tomoritett));
+            #endregion
 
             Console.ReadKey();
         }

@@ -6,11 +6,14 @@ using System.Threading.Tasks;
 
 namespace robot
 {
+    /// <summary>
+    /// Publikus enumeráció az irányok számára.
+    /// </summary>
     public enum Irany
     {
-        Eszak,
-        Kelet,
-        Nyugat,
-        Del
+        E,
+        K,
+        N,
+        D
     }
 }
