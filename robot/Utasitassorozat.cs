@@ -184,7 +184,7 @@ namespace robot
                     // Beleírjuk, hogy mennyit.
                     tomoritett += j - i;
                     // i értékét j-re állítjuk, hogy a j+1-edik elemtől folytatódjon.
-                    i = j;
+                    i = j - 1;
                 }
                 // Beleírjuk az irány betűjét.
                 tomoritett += aktualis.ToString();
