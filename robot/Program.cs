@@ -9,16 +9,7 @@ namespace robot
 {
     class Program
     {
-        //static void TomoritettUtasitasokFajlba(string path, List<Utasitassorozat> lista)
-        //{
-        //    StreamWriter streamWriter = new StreamWriter(path);
-        //    foreach (Utasitassorozat us in lista)
-        //    {
-        //        streamWriter.WriteLine(us.Tomorit());
-        //    }
-        //    streamWriter.Close();
-        //}
-
+    
         static void Main(string[] args)
         {
             #region 1. feladat
